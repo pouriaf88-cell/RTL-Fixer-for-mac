@@ -18,9 +18,11 @@ struct FloatingContentView: View {
 
     let text: String
     var isExpanded: Bool
+    var fontSize: CGFloat
     var onClose: () -> Void
     var onCopy: () -> Void
     var onToggleExpand: () -> Void
+    var onChangeFont: (CGFloat) -> Void
 
     @State private var copied = false
 
@@ -32,7 +34,7 @@ struct FloatingContentView: View {
                 Text(text)
                     .textSelection(.enabled)
                     .multilineTextAlignment(.trailing)
-                    .font(AppFont.vazir(isExpanded ? 21 : 17))
+                    .font(AppFont.vazir(fontSize))
                     .frame(maxWidth: .infinity, alignment: .trailing)
                     .padding(16)
             }
@@ -49,6 +51,34 @@ struct FloatingContentView: View {
                 .font(AppFont.vazir(12, weight: .semibold))
                 .foregroundStyle(.secondary)
             Spacer()
+
+            Button {
+                onChangeFont(-2)
+            } label: {
+                Image(systemName: "minus.circle")
+            }
+            .buttonStyle(.borderless)
+            .keyboardShortcut("-", modifiers: .command)
+            .help("فونت کوچک‌تر (⌘−)")
+
+            Button {
+                onChangeFont(+2)
+            } label: {
+                Image(systemName: "plus.circle")
+            }
+            .buttonStyle(.borderless)
+            .keyboardShortcut("+", modifiers: .command)
+            .help("فونت بزرگ‌تر (⌘+)")
+
+            Button {
+                onChangeFont(0)
+            } label: {
+                Image(systemName: "arrow.counterclockwise.circle")
+            }
+            .buttonStyle(.borderless)
+            .keyboardShortcut("0", modifiers: .command)
+            .help("اندازه‌ی پیش‌فرض (⌘0)")
+
             Button {
                 onToggleExpand()
             } label: {

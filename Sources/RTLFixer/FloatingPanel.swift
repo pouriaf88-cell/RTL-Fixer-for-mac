@@ -10,7 +10,37 @@ final class FloatingPanelController {
     private var currentText = ""
     private(set) var isExpanded = false
 
+    // Font size (compact mode); expanded mode adds 4pt. Persisted in UserDefaults.
+    private static let fontSizeKey = "panelBaseFontSize"
+    private static let defaultFontSize: CGFloat = 17
+    private var baseFontSize: CGFloat
+
+    init() {
+        let saved = UserDefaults.standard.double(forKey: Self.fontSizeKey)
+        baseFontSize = saved > 0 ? CGFloat(saved) : Self.defaultFontSize
+    }
+
     // MARK: - Public
+
+    /// delta > 0 → bigger, delta < 0 → smaller, delta == 0 → reset to default.
+    func changeFont(by delta: CGFloat) {
+        if delta == 0 {
+            baseFontSize = Self.defaultFontSize
+        } else {
+            baseFontSize = min(36, max(12, baseFontSize + delta))
+        }
+        UserDefaults.standard.set(Double(baseFontSize), forKey: Self.fontSizeKey)
+
+        guard let panel, panel.isVisible else { return }
+        updateContent(of: panel, text: currentText)
+        if isExpanded {
+            applyExpandedFrame(to: panel, animate: false)
+        } else {
+            position(panel: panel, near: NSEvent.mouseLocation)
+        }
+    }
+
+    var fontSize: CGFloat { isExpanded ? baseFontSize + 4 : baseFontSize }
 
     func show(text: String) {
         let panel = ensurePanel()
@@ -90,13 +120,15 @@ final class FloatingPanelController {
         let view = FloatingContentView(
             text: text,
             isExpanded: isExpanded,
+            fontSize: fontSize,
             onClose: { [weak self] in self?.hide() },
             onCopy: {
                 let pasteboard = NSPasteboard.general
                 pasteboard.clearContents()
                 pasteboard.setString(text, forType: .string)
             },
-            onToggleExpand: { [weak self] in self?.toggleExpand() })
+            onToggleExpand: { [weak self] in self?.toggleExpand() },
+            onChangeFont: { [weak self] delta in self?.changeFont(by: delta) })
         panel.contentView = NSHostingView(rootView: view)
     }
 
@@ -120,10 +152,14 @@ final class FloatingPanelController {
     }
 
     private func idealSize(for text: String) -> NSSize {
-        let width: CGFloat = 440
-        // Rough wrap estimate: ~30 characters per line at 17pt, 26pt per line.
-        let lines = max(1, Int((Double(text.count) / 30.0).rounded(.up)))
-        let height = min(520, max(190, CGFloat(lines) * 26 + 110))
+        // Width grows gently with the font size (17pt → 440pt wide, caps at 560).
+        let width: CGFloat = min(560, max(440, 26 * baseFontSize))
+        // Rough wrap estimate that scales with the current font size.
+        let charWidthFactor = 17.0 / Double(baseFontSize)
+        let charsPerLine = max(12, Int((30.0 * charWidthFactor).rounded(.up)))
+        let lineHeight = baseFontSize * 1.55
+        let lines = max(1, Int((Double(text.count) / Double(charsPerLine)).rounded(.up)))
+        let height = min(560, max(190, CGFloat(lines) * lineHeight + 110))
         return NSSize(width: width, height: height)
     }
 

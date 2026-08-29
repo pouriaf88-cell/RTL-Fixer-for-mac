@@ -28,6 +28,7 @@ For every place where Persian/Arabic and English get mixed up and the text align
 - 🖥️ The panel shows **above fullscreen apps** too
 - 📝 Text is selectable and copyable inside the panel; close with `Esc` or an outside click
 - 🔤 Rendered in **Vazirmatn** — the beautiful open-source Persian font (bundled, zero setup)
+- **Adjustable font size** — A+ / A− buttons in the panel header, or `⌘+` / `⌘−` (`⌘0` resets). Your choice is remembered.
 
 ## 📦 Download a ready-made build
 
