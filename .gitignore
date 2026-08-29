@@ -6,3 +6,9 @@ DerivedData/
 
 # macOS
 .DS_Store
+
+# Code-signing private key & p12 — NEVER commit these.
+# (Keep the .cer certificate public if you want; only the key/p12 are secret.)
+scripts/cert/rtlfixer-signing.key
+scripts/cert/rtlfixer-signing.p12
+release/

@@ -1,4 +1,18 @@
 import AppKit
+import CoreText
+
+// MARK: - Font Registration
+
+/// Registers the bundled Vazirmatn fonts (Resources/fonts) with CoreText so
+/// SwiftUI's `.custom("Vazirmatn…")` resolves to them.
+func registerBundledFonts() {
+    let fontNames = ["Vazirmatn", "Vazirmatn-Medium", "Vazirmatn-Bold"]
+    for name in fontNames {
+        guard let url = Bundle.main.url(forResource: name, withExtension: "ttf", subdirectory: "fonts")
+                ?? Bundle.main.url(forResource: name, withExtension: "ttf") else { continue }
+        CTFontManagerRegisterFontsForURL(url as CFURL, .process, nil)
+    }
+}
 
 // MARK: - App Delegate
 
@@ -12,6 +26,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     func applicationDidFinishLaunching(_ notification: Notification) {
         // .regular so the app gets a Dock icon (pin it via Right-click → Options → Keep in Dock).
         NSApp.setActivationPolicy(.regular)
+        registerBundledFonts()
         setupStatusItem()
 
         hotKeyManager.onToggle = { [weak self] in self?.togglePanel() }
@@ -69,7 +84,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private func setupStatusItem() {
         statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
         statusItem.button?.title = "‬RTL‪"
-        statusItem.button?.font = NSFont.systemFont(ofSize: 12, weight: .semibold)
+        statusItem.button?.font = NSFont(name: "Vazirmatn-Bold", size: 12)
+            ?? NSFont.systemFont(ofSize: 12, weight: .semibold)
 
         let menu = NSMenu()
         let hotkeyItem = NSMenuItem(title: "میانبر: ⌥R", action: nil, keyEquivalent: "")

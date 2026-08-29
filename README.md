@@ -27,6 +27,16 @@ For every place where Persian/Arabic and English get mixed up and the text align
 - 🔍 **Expanded mode** — one click makes the panel near-fullscreen; great for long texts
 - 🖥️ The panel shows **above fullscreen apps** too
 - 📝 Text is selectable and copyable inside the panel; close with `Esc` or an outside click
+- 🔤 Rendered in **Vazirmatn** — the beautiful open-source Persian font (bundled, zero setup)
+
+## 📦 Download a ready-made build
+
+Grab **`RTL-Fixer-1.1.0.zip`** from the [Releases](../../releases) page, unzip, and move the app to `/Applications`.
+
+Since the app isn't notarized, macOS may block it the first time. Either:
+
+- run `xattr -cr "RTL Fixer.app"` in Terminal, **or**
+- right-click the app → **Open** (twice) in the warning dialog.
 
 ## 🚀 Install
 
@@ -76,13 +86,23 @@ macOS will prompt you the first time:
 ## 🛠️ Troubleshooting
 
 **The Accessibility toggle is on but the app still asks for permission?**
-This happens after a rebuild because the ad-hoc signature changes. Just run:
+This used to happen after rebuilds because the ad-hoc signature changed. It's fixed now — the app is signed with a stable self-signed certificate (`RTL Fixer Developer`), so the grant survives rebuilds. If it ever happens again:
 
 ```bash
 ./fix-permission.sh
 ```
 
-and re-enable the toggle.
+**Building from source yourself?** The build signs ad-hoc if the stable identity isn't in your keychain. Every rebuild with ad-hoc signing invalidates the Accessibility grant (macOS limitation). Sign with your own stable certificate to avoid it.
+
+## 📦 Publishing a release
+
+Maintainers can produce a distributable zip:
+
+```bash
+./make-release.sh
+```
+
+This creates `release/RTL-Fixer-<version>.zip` (+ SHA256) ready to upload to GitHub Releases.
 
 ## 🧱 How it works
 
@@ -96,3 +116,5 @@ and re-enable the toggle.
 ## 📄 License
 
 MIT — use it, change it, ship it. See [LICENSE](LICENSE).
+
+The bundled [Vazirmatn](https://github.com/rastikerdar/vazirmatn) font is © The Vazirmatn Project Authors, released under the [SIL Open Font License 1.1](https://openfontlicense.org).

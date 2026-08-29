@@ -1,5 +1,18 @@
 import SwiftUI
 
+/// Font used across the app — Vazirmatn (bundled in Resources/fonts).
+enum AppFont {
+    static func vazir(_ size: CGFloat, weight: Font.Weight = .regular) -> Font {
+        let name: String
+        switch weight {
+        case .semibold, .bold: name = "Vazirmatn-Bold"
+        case .medium:          name = "Vazirmatn-Medium"
+        default:               name = "Vazirmatn"
+        }
+        return .custom(name, size: size)
+    }
+}
+
 /// The floating panel's content: RTL text inside a Liquid Glass capsule.
 struct FloatingContentView: View {
 
@@ -19,7 +32,7 @@ struct FloatingContentView: View {
                 Text(text)
                     .textSelection(.enabled)
                     .multilineTextAlignment(.trailing)
-                    .font(.system(size: isExpanded ? 21 : 17))
+                    .font(AppFont.vazir(isExpanded ? 21 : 17))
                     .frame(maxWidth: .infinity, alignment: .trailing)
                     .padding(16)
             }
@@ -33,7 +46,7 @@ struct FloatingContentView: View {
             Image(systemName: "text.alignright")
                 .foregroundStyle(.secondary)
             Text("RTL Fixer")
-                .font(.system(size: 12, weight: .semibold))
+                .font(AppFont.vazir(12, weight: .semibold))
                 .foregroundStyle(.secondary)
             Spacer()
             Button {

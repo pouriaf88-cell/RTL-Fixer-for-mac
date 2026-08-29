@@ -14,6 +14,10 @@ mkdir -p "$APP/Contents/MacOS" "$APP/Contents/Resources"
 cp ".build/release/RTLFixer" "$APP/Contents/MacOS/RTLFixer"
 cp "assets/AppIcon.icns" "$APP/Contents/Resources/AppIcon.icns"
 
+# Bundle the Vazirmatn font
+mkdir -p "$APP/Contents/Resources/fonts"
+cp assets/fonts/*.ttf "$APP/Contents/Resources/fonts/"
+
 cat > "$APP/Contents/Info.plist" <<'PLIST'
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
@@ -22,8 +26,8 @@ cat > "$APP/Contents/Info.plist" <<'PLIST'
     <key>CFBundleName</key>                <string>RTL Fixer</string>
     <key>CFBundleDisplayName</key>         <string>RTL Fixer</string>
     <key>CFBundleIdentifier</key>          <string>com.rtlfixer.app</string>
-    <key>CFBundleVersion</key>             <string>1.0</string>
-    <key>CFBundleShortVersionString</key>  <string>1.0</string>
+    <key>CFBundleVersion</key>             <string>1.1</string>
+    <key>CFBundleShortVersionString</key>  <string>1.1.0</string>
     <key>CFBundleExecutable</key>          <string>RTLFixer</string>
     <key>CFBundleIconFile</key>            <string>AppIcon</string>
     <key>CFBundlePackageType</key>         <string>APPL</string>
@@ -31,14 +35,23 @@ cat > "$APP/Contents/Info.plist" <<'PLIST'
     <key>LSMinimumSystemVersion</key>      <string>26.0</string>
     <key>LSUIElement</key>                 <false/>
     <key>NSHighResolutionCapable</key>     <true/>
+    <key>NSHumanReadableCopyright</key>    <string>MIT License — Vazirmatn font under SIL OFL 1.1</string>
 </dict>
 </plist>
 PLIST
 
 echo -n "APPL????" > "$APP/Contents/PkgInfo"
 
-echo "▸ Ad-hoc code signing..."
-codesign --force --sign - "$APP"
+echo "▸ Code signing..."
+# Sign with the stable self-signed identity so the macOS Accessibility (TCC)
+# grant survives rebuilds. Falls back to ad-hoc if the identity is missing.
+IDENTITY="RTL Fixer Developer"
+if security find-identity -v -p codesigning | grep -q "$IDENTITY"; then
+    codesign --force --sign "$IDENTITY" "$APP"
+else
+    echo "  (stable identity not found — falling back to ad-hoc)"
+    codesign --force --sign - "$APP"
+fi
 
 echo ""
 echo "✅ Done: $APP"
